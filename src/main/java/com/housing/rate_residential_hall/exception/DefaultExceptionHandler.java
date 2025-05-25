@@ -1,5 +1,6 @@
 package com.housing.rate_residential_hall.exception;
 
+import jakarta.mail.MessagingException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -34,5 +35,10 @@ public class DefaultExceptionHandler {
   @ExceptionHandler(value = CodeExpiredException.class)
   public ResponseEntity hanldeCodeExpiredException(CodeExpiredException ex) {
     return ResponseEntity.status(HttpStatus.GONE).body(ex.getMessage());
+  }
+
+  @ExceptionHandler(value = RuntimeException.class)
+  public ResponseEntity handleRuntimeException(RuntimeException ex){
+    return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(ex.getMessage());
   }
 }
