@@ -37,8 +37,18 @@ public class DefaultExceptionHandler {
     return ResponseEntity.status(HttpStatus.GONE).body(ex.getMessage());
   }
 
+  @ExceptionHandler(value = RatingAlreadyExistsException.class)
+  public ResponseEntity hanldeRatingAlreadyExistsException(RatingAlreadyExistsException ex) {
+    return ResponseEntity.status(HttpStatus.CONFLICT).body(ex.getMessage());
+  }
+
   @ExceptionHandler(value = RuntimeException.class)
   public ResponseEntity handleRuntimeException(RuntimeException ex){
     return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(ex.getMessage());
+  }
+
+  @ExceptionHandler(value = BuildingNotFoundException.class)
+  public ResponseEntity handleBuildingNotFoundException(BuildingNotFoundException ex){
+    return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getMessage());
   }
 }

@@ -18,7 +18,6 @@ public class AuthController {
   private final AuthService authService;
 
   public AuthController(
-          UserRepository userRepository,
           AuthService authService
   ){
     this.authService = authService;
