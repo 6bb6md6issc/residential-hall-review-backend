@@ -13,7 +13,7 @@ import java.util.UUID;
 @Setter
 public class CreateRatingDto {
   private UUID buildingId;
-  private String Content;
+  private String content;
   private int startYear;
   private int ratingValue;
 }

@@ -29,7 +29,7 @@ public class RatingService {
   private final BuildingRepository buildingRepository;
   private final ImageRepository imageRepository;
   private final S3Service s3Service;
-  @Value("${maxsize}") private long MAX_FILE_SIZE;
+  private final ImageService imageService;
 
   public void createNewRating(CreateRatingDto dto, MultipartFile file){
     Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -50,23 +50,18 @@ public class RatingService {
     );
     ratingRepository.save(newRating);
 
-    Image newImage = new Image(user, building, LocalDateTime.now(), newRating);
-
-    if (file != null) {
-      // file size limited to 2MB
-      if (file.getSize() > MAX_FILE_SIZE) {
-        throw new IllegalArgumentException("File size exceeds limit of 2 MB.");
-      }
+    if(file != null) {
+      Image newImage = new Image(user, building, LocalDateTime.now(), newRating);
+      imageRepository.save(newImage);
 
       try {
         s3Service.putObject(
-                "/rating/%s".formatted(newImage.getId()),
+                "ratings/%s".formatted(newImage.getId()),
                 file.getBytes()
         );
-      } catch (IOException ex){
+      } catch (IOException ex) {
         throw new RuntimeException("Failed to upload file");
       }
-      imageRepository.save(newImage);
     }
   }
 }
