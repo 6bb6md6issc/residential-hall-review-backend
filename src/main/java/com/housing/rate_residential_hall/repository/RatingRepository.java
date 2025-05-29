@@ -12,4 +12,5 @@ public interface RatingRepository extends CrudRepository<Rating, UUID> {
   boolean existsByUserAndBuilding(User user, Building building);
   boolean existsById(UUID id);
   List<Rating> findByBuilding(Building building);
+  void deleteById(UUID id);
 }

@@ -4,7 +4,6 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.housing.rate_residential_hall.dto.CreateRatingDto;
 import com.housing.rate_residential_hall.dto.RatingDto;
-import com.housing.rate_residential_hall.entity.Rating;
 import com.housing.rate_residential_hall.service.RatingService;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -34,8 +33,6 @@ public class RatingController {
     ObjectMapper objectMapper = new ObjectMapper();
     try {
       CreateRatingDto dto = objectMapper.readValue(json, CreateRatingDto.class);
-      System.out.println("Received file: " + file.getOriginalFilename());
-      System.out.println("Received JSON: " + dto.getContent());
       ratingService.createNewRating(dto, file);
       return ResponseEntity.ok().body("new rating successfully created");
     } catch (JsonProcessingException e) {
@@ -43,10 +40,20 @@ public class RatingController {
     }
   }
 
+  @DeleteMapping(path = "/{ratingId}")
+  public ResponseEntity deleteRating(@PathVariable UUID ratingId){
+    ratingService.deleteRating(ratingId);
+    return ResponseEntity.ok().body("successfully deleted rating");
+  }
+
   @GetMapping(path = "/{buildingId}")
   public ResponseEntity getAllRating(@PathVariable UUID buildingId){
     List<RatingDto> ratingDtoList = ratingService.getRating(buildingId);
     return ResponseEntity.ok().body(ratingDtoList);
   }
+
+
+
+
 
 }

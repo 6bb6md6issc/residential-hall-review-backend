@@ -9,4 +9,5 @@ import java.util.UUID;
 
 public interface ImageRepository extends CrudRepository<Image, UUID> {
   Optional<Image> findByRating(Rating rating);
+  void deleteById(UUID id);
 }

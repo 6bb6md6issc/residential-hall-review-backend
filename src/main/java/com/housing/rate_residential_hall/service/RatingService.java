@@ -10,6 +10,7 @@ import com.housing.rate_residential_hall.entity.Rating;
 import com.housing.rate_residential_hall.entity.User;
 import com.housing.rate_residential_hall.exception.BuildingNotFoundException;
 import com.housing.rate_residential_hall.exception.RatingAlreadyExistsException;
+import com.housing.rate_residential_hall.exception.RatingNotFoundException;
 import com.housing.rate_residential_hall.repository.BuildingRepository;
 import com.housing.rate_residential_hall.repository.ImageRepository;
 import com.housing.rate_residential_hall.repository.RatingRepository;
@@ -21,8 +22,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.nio.file.AccessDeniedException;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -81,7 +84,23 @@ public class RatingService {
             .collect(Collectors.toList());
   }
 
+  public void deleteRating(UUID ratingId){
+    Rating rating = ratingRepository.findById(ratingId)
+            .orElseThrow(() -> new RatingNotFoundException("No Such Rating"));
+    Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+    User user = (User) authentication.getPrincipal();
+    // rating not created by current user
+    if(!rating.getUser().getId().equals(user.getId())){
+      throw new RuntimeException("Unauthorized");
+    }
 
-
-
+    Optional<Image> image = imageRepository.findByRating(rating);
+    if(image.isPresent()){
+      s3Service.deleteFile(
+              "ratings/%s".formatted(image.get().getId().toString())
+      );
+      imageRepository.deleteById(image.get().getId());
+    }
+    ratingRepository.deleteById(ratingId);
+  }
 }

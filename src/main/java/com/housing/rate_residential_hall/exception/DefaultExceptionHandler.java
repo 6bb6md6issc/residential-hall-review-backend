@@ -9,6 +9,8 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
+import java.nio.file.AccessDeniedException;
+
 @ControllerAdvice
 public class DefaultExceptionHandler {
 
@@ -60,5 +62,10 @@ public class DefaultExceptionHandler {
   @ExceptionHandler(value = ImageNotFoundException.class)
   public ResponseEntity handleImageNotFoundException(ImageNotFoundException ex){
     return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getMessage());
+  }
+
+  @ExceptionHandler(value = AccessDeniedException.class)
+  public ResponseEntity handleAccessDeniedException(AccessDeniedException ex){
+    return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(ex.getMessage());
   }
 }
