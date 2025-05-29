@@ -12,21 +12,6 @@ import java.util.UUID;
 @Getter
 @Setter
 public class Rating {
-  public Rating(
-          String content,
-          User user,
-          Building building,
-          LocalDateTime createdAt,
-          int startYear,
-          int ratingValue
-  ) {
-    this.content = content;
-    this.building = building;
-    this.startYear = startYear;
-    this.ratingValue = ratingValue;
-    this.createdAt = createdAt;
-    this.user = user;
-  }
 
   @Id
   @Column(unique = true, nullable = false)
@@ -56,5 +41,22 @@ public class Rating {
   @Column(name = "rating_value", nullable = false)
   private int ratingValue;
 
+  public Rating(){}
+
+  public Rating(
+          String content,
+          User user,
+          Building building,
+          LocalDateTime createdAt,
+          int startYear,
+          int ratingValue
+  ) {
+    this.content = content;
+    this.building = building;
+    this.startYear = startYear;
+    this.ratingValue = ratingValue;
+    this.createdAt = createdAt;
+    this.user = user;
+  }
 }
 

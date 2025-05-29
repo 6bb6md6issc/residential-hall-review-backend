@@ -40,6 +40,7 @@ public class SecurityConfig {
                     .requestMatchers("/api/v1/auth/**").permitAll()
                     .requestMatchers(HttpMethod.GET,"/api/v1/rating/**").permitAll()
                     .requestMatchers(HttpMethod.GET,"/api/v1/auth/building/**").permitAll()
+                    .requestMatchers(HttpMethod.GET,"/api/v1/image/**").permitAll()
                     .anyRequest().authenticated()
             )
             .sessionManagement(session -> session

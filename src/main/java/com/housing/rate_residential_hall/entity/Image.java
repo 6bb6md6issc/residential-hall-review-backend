@@ -32,6 +32,8 @@ public class Image {
   @JoinColumn(name = "rating_id", referencedColumnName = "id")
   private Rating rating;
 
+  public Image(){};
+
   public Image(
           User user,
           Building building,

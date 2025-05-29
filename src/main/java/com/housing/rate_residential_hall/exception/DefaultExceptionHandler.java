@@ -51,4 +51,14 @@ public class DefaultExceptionHandler {
   public ResponseEntity handleBuildingNotFoundException(BuildingNotFoundException ex){
     return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getMessage());
   }
+
+  @ExceptionHandler(value = RatingNotFoundException.class)
+  public ResponseEntity handleRatingNotFoundException(RatingNotFoundException ex){
+    return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getMessage());
+  }
+
+  @ExceptionHandler(value = ImageNotFoundException.class)
+  public ResponseEntity handleImageNotFoundException(ImageNotFoundException ex){
+    return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getMessage());
+  }
 }

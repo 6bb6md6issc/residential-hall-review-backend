@@ -2,6 +2,8 @@ package com.housing.rate_residential_hall.service;
 
 import com.housing.rate_residential_hall.S3.S3Service;
 import com.housing.rate_residential_hall.dto.CreateRatingDto;
+import com.housing.rate_residential_hall.dto.RatingDto;
+import com.housing.rate_residential_hall.dto.mapper.RatingMapper;
 import com.housing.rate_residential_hall.entity.Building;
 import com.housing.rate_residential_hall.entity.Image;
 import com.housing.rate_residential_hall.entity.Rating;
@@ -20,6 +22,9 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
+import java.util.List;
+import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -30,6 +35,7 @@ public class RatingService {
   private final ImageRepository imageRepository;
   private final S3Service s3Service;
   private final ImageService imageService;
+  private final RatingMapper ratingMapper;
 
   public void createNewRating(CreateRatingDto dto, MultipartFile file){
     Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -54,6 +60,7 @@ public class RatingService {
       Image newImage = new Image(user, building, LocalDateTime.now(), newRating);
       imageRepository.save(newImage);
 
+      imageService.validateFile(file);
       try {
         s3Service.putObject(
                 "ratings/%s".formatted(newImage.getId()),
@@ -64,4 +71,17 @@ public class RatingService {
       }
     }
   }
+  
+  public List<RatingDto> getRating(UUID buildingId){
+    Building building = buildingRepository.findById(buildingId)
+            .orElseThrow(()-> new BuildingNotFoundException("No such building"));
+    List<Rating> ratings = ratingRepository.findByBuilding(building);
+    return ratings.stream()
+            .map(ratingMapper::toDto)
+            .collect(Collectors.toList());
+  }
+
+
+
+
 }

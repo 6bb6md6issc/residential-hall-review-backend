@@ -1,5 +1,6 @@
 package com.housing.rate_residential_hall.S3;
 
+import com.housing.rate_residential_hall.dto.S3ObjectResponse;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import software.amazon.awssdk.core.ResponseInputStream;
@@ -23,7 +24,7 @@ public class S3Service {
     this.s3 = s3;
   }
 
-  public byte[] getObject(String bucketName, String key) {
+  public byte[] getObject(String key) {
     GetObjectRequest getObjectRequest = GetObjectRequest.builder()
             .bucket(bucketName)
             .key(key)
