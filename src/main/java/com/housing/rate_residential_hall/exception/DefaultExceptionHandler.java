@@ -64,8 +64,8 @@ public class DefaultExceptionHandler {
     return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getMessage());
   }
 
-  @ExceptionHandler(value = AccessDeniedException.class)
-  public ResponseEntity handleAccessDeniedException(AccessDeniedException ex){
+  @ExceptionHandler(value = UnauthorizedException.class)
+  public ResponseEntity handleUnauthorizedException(UnauthorizedException ex){
     return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(ex.getMessage());
   }
 }

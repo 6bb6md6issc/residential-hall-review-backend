@@ -39,6 +39,7 @@ public class RatingService {
   private final S3Service s3Service;
   private final ImageService imageService;
   private final RatingMapper ratingMapper;
+  private final AuthService authService;
 
   public void createNewRating(CreateRatingDto dto, MultipartFile file){
     Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -60,18 +61,7 @@ public class RatingService {
     ratingRepository.save(newRating);
 
     if(file != null) {
-      Image newImage = new Image(user, building, LocalDateTime.now(), newRating);
-      imageRepository.save(newImage);
-
-      imageService.validateFile(file);
-      try {
-        s3Service.putObject(
-                "ratings/%s".formatted(newImage.getId()),
-                file.getBytes()
-        );
-      } catch (IOException ex) {
-        throw new RuntimeException("Failed to upload file");
-      }
+      imageService.uploadNewImage(user, building, newRating, file);
     }
   }
   
@@ -87,19 +77,12 @@ public class RatingService {
   public void deleteRating(UUID ratingId){
     Rating rating = ratingRepository.findById(ratingId)
             .orElseThrow(() -> new RatingNotFoundException("No Such Rating"));
-    Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-    User user = (User) authentication.getPrincipal();
-    // rating not created by current user
-    if(!rating.getUser().getId().equals(user.getId())){
-      throw new RuntimeException("Unauthorized");
-    }
+
+    authService.verifyAuthenticatedUser(rating.getUser().getId());
 
     Optional<Image> image = imageRepository.findByRating(rating);
     if(image.isPresent()){
-      s3Service.deleteFile(
-              "ratings/%s".formatted(image.get().getId().toString())
-      );
-      imageRepository.deleteById(image.get().getId());
+      imageService.deleteFile(image.get());
     }
     ratingRepository.deleteById(ratingId);
   }

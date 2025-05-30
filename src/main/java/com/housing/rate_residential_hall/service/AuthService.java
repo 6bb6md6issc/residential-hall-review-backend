@@ -3,6 +3,7 @@ package com.housing.rate_residential_hall.service;
 import com.housing.rate_residential_hall.dto.*;
 import com.housing.rate_residential_hall.entity.User;
 import com.housing.rate_residential_hall.exception.CodeExpiredException;
+import com.housing.rate_residential_hall.exception.UnauthorizedException;
 import com.housing.rate_residential_hall.exception.UserAlreadyExistsException;
 import com.housing.rate_residential_hall.exception.UserNotFoundException;
 import com.housing.rate_residential_hall.repository.UserRepository;
@@ -13,11 +14,14 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.Random;
+import java.util.UUID;
 
 @RequiredArgsConstructor
 @Service
@@ -99,6 +103,14 @@ public class AuthService {
       userRepository.save(user);
     } else {
       throw new BadCredentialsException("Invalid Verification Code");
+    }
+  }
+
+  public void verifyAuthenticatedUser(UUID targetUserId) {
+    Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+    User user = (User) authentication.getPrincipal();
+    if (!targetUserId.equals(user.getId())){
+      throw new UnauthorizedException("Unauthorized.");
     }
   }
 

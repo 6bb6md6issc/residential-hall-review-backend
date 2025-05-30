@@ -52,7 +52,7 @@ public class RatingController {
     return ResponseEntity.ok().body(ratingDtoList);
   }
 
-
+  
 
 
 

@@ -4,7 +4,9 @@ import com.housing.rate_residential_hall.service.ImageService;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.util.Optional;
 import java.util.UUID;
 
 @RequestMapping("/api/v1/image")
@@ -18,16 +20,29 @@ public class ImageController {
   }
 
   @GetMapping("/{ratingId}")
-  public ResponseEntity<byte[]> getRatingImage(@PathVariable UUID ratingId){
-    byte[] file = imageService.getRatingImage(ratingId);
-    return ResponseEntity.ok()
-            .contentType(MediaType.IMAGE_JPEG)
-            .body(file);
-
+  public ResponseEntity<?> getRatingImage(@PathVariable UUID ratingId){
+    Optional<byte[]> file = imageService.getRatingImage(ratingId);
+    if (file.isPresent()) {
+      return ResponseEntity.ok()
+              .contentType(MediaType.IMAGE_JPEG)
+              .body(file.get());
+    } else {
+      return ResponseEntity.noContent().build();
+    }
   }
-//
-//  @DeleteMapping("/{ratingId}")
-//  public ResponseEntity deleteRatingImage(@PathVariable UUID ratingId) {
-//
-//  }
+
+  @PutMapping(value = "/{imageId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+  public ResponseEntity updateRatingImage(
+          @PathVariable UUID imageId,
+          MultipartFile file
+  ) {
+    imageService.updateFile(imageId, file);
+    return ResponseEntity.ok().body("Image Successfully Updated");
+  }
+
+  @DeleteMapping("/{ratingId}")
+  public ResponseEntity deleteRatingImage(@PathVariable UUID ratingId) {
+    imageService.deleteFile(ratingId);
+    return ResponseEntity.ok().body("Image Successfully Deleted");
+  }
 }
