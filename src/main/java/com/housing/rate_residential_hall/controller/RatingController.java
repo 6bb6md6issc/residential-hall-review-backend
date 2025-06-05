@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.housing.rate_residential_hall.dto.CreateRatingDto;
 import com.housing.rate_residential_hall.dto.RatingDto;
+import com.housing.rate_residential_hall.dto.UpdateRatingDto;
 import com.housing.rate_residential_hall.service.RatingService;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -52,8 +53,19 @@ public class RatingController {
     return ResponseEntity.ok().body(ratingDtoList);
   }
 
-  
-
-
+  @PutMapping(path = "/{ratingId}")
+  public ResponseEntity updateRatingData (
+          @PathVariable UUID ratingId,
+          @RequestBody String json
+  ){
+    ObjectMapper objectMapper = new ObjectMapper();
+    try {
+      UpdateRatingDto dto = objectMapper.readValue(json, UpdateRatingDto.class);
+      ratingService.updateRating(ratingId, dto);
+      return ResponseEntity.ok().body("rating successfully updated");
+    } catch (JsonProcessingException e) {
+      throw new RuntimeException(e);
+    }
+  }
 
 }

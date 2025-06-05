@@ -3,6 +3,7 @@ package com.housing.rate_residential_hall.service;
 import com.housing.rate_residential_hall.S3.S3Service;
 import com.housing.rate_residential_hall.dto.CreateRatingDto;
 import com.housing.rate_residential_hall.dto.RatingDto;
+import com.housing.rate_residential_hall.dto.UpdateRatingDto;
 import com.housing.rate_residential_hall.dto.mapper.RatingMapper;
 import com.housing.rate_residential_hall.entity.Building;
 import com.housing.rate_residential_hall.entity.Image;
@@ -14,6 +15,7 @@ import com.housing.rate_residential_hall.exception.RatingNotFoundException;
 import com.housing.rate_residential_hall.repository.BuildingRepository;
 import com.housing.rate_residential_hall.repository.ImageRepository;
 import com.housing.rate_residential_hall.repository.RatingRepository;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
@@ -85,5 +87,19 @@ public class RatingService {
       imageService.deleteFile(image.get());
     }
     ratingRepository.deleteById(ratingId);
+  }
+
+  @Transactional
+  public void updateRating(UUID ratingId, UpdateRatingDto dto){
+    Rating rating = ratingRepository.findById(ratingId)
+            .orElseThrow(()-> new RatingNotFoundException("No Such Rating"));
+    authService.verifyAuthenticatedUser(rating.getUser().getId());
+
+    rating.setContent(dto.getContent());
+    rating.setUpdatedAt(LocalDateTime.now());
+    rating.setStartYear(dto.getStartYear());
+    rating.setRatingValue(dto.getRatingValue());
+
+    ratingRepository.save(rating);
   }
 }
