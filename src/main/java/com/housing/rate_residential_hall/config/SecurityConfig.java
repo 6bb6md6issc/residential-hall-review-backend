@@ -41,6 +41,7 @@ public class SecurityConfig {
                     .requestMatchers(HttpMethod.GET,"/api/v1/rating/**").permitAll()
                     .requestMatchers(HttpMethod.GET,"/api/v1/auth/building/**").permitAll()
                     .requestMatchers(HttpMethod.GET,"/api/v1/image/**").permitAll()
+                    .requestMatchers(HttpMethod.GET,"/api/v1/building/**").permitAll()
                     .anyRequest().authenticated()
             )
             .sessionManagement(session -> session

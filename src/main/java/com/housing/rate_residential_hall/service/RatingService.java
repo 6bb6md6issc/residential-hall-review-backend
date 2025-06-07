@@ -38,7 +38,6 @@ public class RatingService {
   private final RatingRepository ratingRepository;
   private final BuildingRepository buildingRepository;
   private final ImageRepository imageRepository;
-  private final S3Service s3Service;
   private final ImageService imageService;
   private final RatingMapper ratingMapper;
   private final AuthService authService;
