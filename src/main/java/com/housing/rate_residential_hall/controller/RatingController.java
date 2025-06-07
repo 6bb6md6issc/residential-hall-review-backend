@@ -68,4 +68,9 @@ public class RatingController {
     }
   }
 
+  @GetMapping(path = "/my-ratings")
+  public ResponseEntity getCurrentUserRating() {
+    List<RatingDto> currentUserRatings = ratingService.getAllRatingByUser();
+    return ResponseEntity.ok().body(currentUserRatings);
+  }
 }

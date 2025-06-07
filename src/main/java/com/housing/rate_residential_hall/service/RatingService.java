@@ -23,8 +23,6 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
-import java.nio.file.AccessDeniedException;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -100,5 +98,14 @@ public class RatingService {
     rating.setRatingValue(dto.getRatingValue());
 
     ratingRepository.save(rating);
+  }
+
+  public List<RatingDto> getAllRatingByUser(){
+    User user = authService.getAuthenticatedUser();
+    List<Rating> ratings = ratingRepository.findByUser(user);
+    return ratings
+            .stream()
+            .map(ratingMapper::toDto)
+            .collect(Collectors.toList());
   }
 }

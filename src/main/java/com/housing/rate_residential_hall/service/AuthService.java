@@ -114,6 +114,12 @@ public class AuthService {
     }
   }
 
+  public User getAuthenticatedUser(){
+    Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+    User user = (User) authentication.getPrincipal();
+    return user;
+  }
+
   private void sendVerificationCode (User user) {
     String verificationCode = user.getRegisterVerificationCode();
     String htmlMessage = "<html>"
