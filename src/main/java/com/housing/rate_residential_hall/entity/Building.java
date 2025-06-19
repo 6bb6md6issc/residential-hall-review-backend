@@ -18,4 +18,8 @@ public class Building {
 
   @Column(name = "building_name", nullable = false)
   private String buildingName;
+
+  public Building(String buildingName){
+    this.buildingName = buildingName;
+  }
 }
