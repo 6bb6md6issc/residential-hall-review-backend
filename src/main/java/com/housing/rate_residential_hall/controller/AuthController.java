@@ -56,4 +56,12 @@ public class AuthController {
     authService.resetPassword(resetPasswordDto);
     return ResponseEntity.ok("Successfully reset password");
   }
+
+  @PostMapping("/resend-verification")
+  public ResponseEntity resendVerification(
+          @RequestBody ResendVerificationDto dto
+  ){
+    authService.resendVerificationEmail(dto.getEmail());
+    return ResponseEntity.ok("Successfully resend email");
+  }
 }

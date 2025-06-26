@@ -16,26 +16,29 @@ import java.util.UUID;
 @Setter
 public class RatingDto {
 
-  private UUID id;
+  @JsonProperty("rating_id")private UUID ratingId;
   @JsonProperty("user_id")private UUID userId;
   @JsonProperty("building_id")private UUID buildingId;
+  @JsonProperty("building_name")private String buildingName;
   private String content;
   @JsonProperty("created_at") private LocalDateTime createdAt;
   @JsonProperty("start_year")private int startYear;
   @JsonProperty("rating_value")private int ratingValue;
 
   public RatingDto(
-          UUID id,
+          UUID ratingId,
           UUID userId,
           UUID buildingId,
+          String buildingName,
           String content,
           LocalDateTime createdAt,
           int startYear,
           int ratingValue
   ){
-    this.id = id;
+    this.ratingId = ratingId;
     this.userId = userId;
     this.buildingId = buildingId;
+    this.buildingName = buildingName;
     this.content = content;
     this.createdAt = createdAt;
     this.startYear = startYear;

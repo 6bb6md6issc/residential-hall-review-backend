@@ -1,5 +1,6 @@
 package com.housing.rate_residential_hall.controller;
 
+import com.housing.rate_residential_hall.dto.UploadNewImageDto;
 import com.housing.rate_residential_hall.service.ImageService;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -31,13 +32,13 @@ public class ImageController {
     }
   }
 
-  @PutMapping(value = "/{imageId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-  public ResponseEntity updateRatingImage(
-          @PathVariable UUID imageId,
-          MultipartFile file
-  ) {
-    imageService.updateFile(imageId, file);
-    return ResponseEntity.ok().body("Image Successfully Updated");
+  @PostMapping(path = "/{ratingId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+  public ResponseEntity uploadOrUpdateRatingImage(
+          @PathVariable UUID ratingId,
+          @RequestPart MultipartFile file
+  ){
+    imageService.updateFileByRatingId(ratingId, file);
+    return ResponseEntity.ok().body("Image Successfully Uploaded/Updated");
   }
 
   @DeleteMapping("/{ratingId}")
@@ -45,4 +46,5 @@ public class ImageController {
     imageService.deleteFile(ratingId);
     return ResponseEntity.ok().body("Image Successfully Deleted");
   }
+
 }

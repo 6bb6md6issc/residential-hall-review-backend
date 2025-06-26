@@ -2,9 +2,7 @@ package com.housing.rate_residential_hall.controller;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.housing.rate_residential_hall.dto.CreateRatingDto;
-import com.housing.rate_residential_hall.dto.RatingDto;
-import com.housing.rate_residential_hall.dto.UpdateRatingDto;
+import com.housing.rate_residential_hall.dto.*;
 import com.housing.rate_residential_hall.service.RatingService;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -12,6 +10,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @RequestMapping("/api/v1/rating")
@@ -28,8 +27,8 @@ public class RatingController {
 
   @PostMapping(path = "/new", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
   public ResponseEntity createNewRating(
-          @RequestPart("file") MultipartFile file,
-          @RequestParam("rating_data") String json
+          @RequestPart(value = "file", required = false) MultipartFile file,
+          @RequestPart("rating_data") String json
   ){
     ObjectMapper objectMapper = new ObjectMapper();
     try {
@@ -49,8 +48,8 @@ public class RatingController {
 
   @GetMapping(path = "/{buildingId}")
   public ResponseEntity getAllRating(@PathVariable UUID buildingId){
-    List<RatingDto> ratingDtoList = ratingService.getRating(buildingId);
-    return ResponseEntity.ok().body(ratingDtoList);
+    GetRatingResponse getRatingResponse = ratingService.getRating(buildingId);
+    return ResponseEntity.ok().body(getRatingResponse);
   }
 
   @PutMapping(path = "/{ratingId}")
@@ -70,7 +69,15 @@ public class RatingController {
 
   @GetMapping(path = "/my-ratings")
   public ResponseEntity getCurrentUserRating() {
-    List<RatingDto> currentUserRatings = ratingService.getAllRatingByUser();
+    List<MyRatingDto> currentUserRatings = ratingService.getAllRatingByUser();
     return ResponseEntity.ok().body(currentUserRatings);
+  }
+
+  @GetMapping(path = "/my-ratings/{buildingId}")
+  public ResponseEntity getBuildingSpecificRating(
+          @PathVariable UUID buildingId
+  ){
+    MySpecificRatingResponse rating = ratingService.getBuildingSpecificRating(buildingId);
+    return ResponseEntity.ok().body(rating);
   }
 }

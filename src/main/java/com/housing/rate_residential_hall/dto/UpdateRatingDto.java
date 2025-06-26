@@ -13,7 +13,7 @@ import java.util.UUID;
 @Setter
 public class UpdateRatingDto {
   private String content;
-  @JsonProperty("start_value") private int startYear;
+  @JsonProperty("start_year") private int startYear;
   @JsonProperty("rating_value") private int ratingValue;
 
   public UpdateRatingDto(

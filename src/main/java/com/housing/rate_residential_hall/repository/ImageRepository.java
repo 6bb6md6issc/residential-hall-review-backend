@@ -8,6 +8,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 public interface ImageRepository extends CrudRepository<Image, UUID> {
+  Optional<Image> findByRatingId(UUID ratingId);
   Optional<Image> findByRating(Rating rating);
   void deleteById(UUID id);
 }

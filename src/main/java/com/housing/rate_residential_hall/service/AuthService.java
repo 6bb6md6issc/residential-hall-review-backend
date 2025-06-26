@@ -16,6 +16,8 @@ import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -87,6 +89,7 @@ public class AuthService {
       throw new BadCredentialsException("Invalid Reset Password Credential");
     }
     user.setPassword(passwordEncoder.encode(resetPasswordDto.getNewPassword()));
+    user.setResetPasswordCode(null);
     userRepository.save(user);
   }
 
@@ -114,10 +117,35 @@ public class AuthService {
     }
   }
 
+  public void resendVerificationEmail(String email) {
+    User user = userRepository.findByEmail(email)
+            .orElseThrow(() -> new UserNotFoundException("User Not Found"));
+    String newVerificationCode = generateCode();
+    user.setRegisterVerificationCode(newVerificationCode);
+    user.setRegisterVerificationExpiration(LocalDateTime.now().plusMinutes(15));
+    userRepository.save(user);
+    sendVerificationCode(user);
+  }
+
   public User getAuthenticatedUser(){
     Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-    User user = (User) authentication.getPrincipal();
-    return user;
+//    User user = (User) authentication.getPrincipal();
+//    return user;
+    Object principal = authentication.getPrincipal();
+
+    if (principal instanceof User) {
+        return (User) principal;
+      } else if (principal instanceof UserDetails) {
+        String username = ((UserDetails) principal).getUsername();
+        return userRepository.findByEmail(username)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+      } else if (principal instanceof String) {
+        String username = (String) principal;
+        return userRepository.findByEmail(username)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+      } else {
+        throw new RuntimeException("Unknown principal type: " + principal.getClass());
+      }
   }
 
   private void sendVerificationCode (User user) {

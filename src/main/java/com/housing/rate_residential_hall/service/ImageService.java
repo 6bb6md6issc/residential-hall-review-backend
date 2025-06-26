@@ -1,12 +1,14 @@
 package com.housing.rate_residential_hall.service;
 
 import com.housing.rate_residential_hall.S3.S3Service;
+import com.housing.rate_residential_hall.dto.UploadNewImageDto;
 import com.housing.rate_residential_hall.entity.Building;
 import com.housing.rate_residential_hall.entity.Image;
 import com.housing.rate_residential_hall.entity.Rating;
 import com.housing.rate_residential_hall.entity.User;
 import com.housing.rate_residential_hall.exception.ImageNotFoundException;
 import com.housing.rate_residential_hall.exception.RatingNotFoundException;
+import com.housing.rate_residential_hall.repository.BuildingRepository;
 import com.housing.rate_residential_hall.repository.ImageRepository;
 import com.housing.rate_residential_hall.repository.RatingRepository;
 import lombok.RequiredArgsConstructor;
@@ -71,15 +73,15 @@ public class ImageService {
     }
   }
 
-  public void deleteFile(UUID imageId){
+  public void deleteFile(UUID ratingId){
     // only deleting the file but not other content
-    Image image = imageRepository.findById(imageId)
+    Image image = imageRepository.findByRatingId(ratingId)
             .orElseThrow(()-> new ImageNotFoundException("No Such Image"));
     authService.verifyAuthenticatedUser(image.getUser().getId());
     s3Service.deleteFile(
-            "ratings/%s".formatted(imageId)
+            "ratings/%s".formatted(image.getId())
     );
-    imageRepository.deleteById(imageId);
+    imageRepository.deleteById(image.getId());
   }
 
   public void deleteFile(Image image){
@@ -110,23 +112,31 @@ public class ImageService {
     }
   }
 
-  public void updateFile(UUID imageId, MultipartFile file){
-    Image image = imageRepository.findById(imageId)
-            .orElseThrow(()-> new ImageNotFoundException("No Such Image"));
 
-    authService.verifyAuthenticatedUser(image.getUser().getId());
-    validateFile(file);
-    try {
-      s3Service.putObject(
-              "rating/%s".formatted(imageId),
-              file.getBytes()
-      );
-    } catch (IOException e) {
-      throw new RuntimeException(e);
+  public void updateFileByRatingId(UUID ratingId, MultipartFile file){
+    Rating rating = ratingRepository.findById(ratingId)
+            .orElseThrow(() -> new RatingNotFoundException("No Such Rating"));
+    Image image = imageRepository.findByRating(rating).orElse(null);
+    if (image == null){
+      // upload new image since for now no image is associated with rating
+      authService.verifyAuthenticatedUser(rating.getUser().getId());
+      User user = authService.getAuthenticatedUser();
+      uploadNewImage(user, rating.getBuilding(), rating, file);
     }
-    image.setUploadedAt(LocalDateTime.now());
-    imageRepository.save(image);
+    else {
+      // update existing image
+      authService.verifyAuthenticatedUser(image.getUser().getId());
+      validateFile(file);
+      try {
+        s3Service.putObject(
+                "ratings/%s".formatted(image.getId()),
+                file.getBytes()
+        );
+      } catch (IOException e) {
+        throw new RuntimeException(e);
+      }
+      image.setUploadedAt(LocalDateTime.now());
+      imageRepository.save(image);
+    }
   }
-
-
 }

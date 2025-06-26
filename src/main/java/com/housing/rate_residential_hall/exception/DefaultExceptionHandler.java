@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
 import java.nio.file.AccessDeniedException;
+import java.util.Map;
 
 @ControllerAdvice
 public class DefaultExceptionHandler {
@@ -21,7 +22,9 @@ public class DefaultExceptionHandler {
 
   @ExceptionHandler(value = UserNotFoundException.class)
   public ResponseEntity handleUserNotFoundException(UserNotFoundException ex) {
-    return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getMessage());
+    return ResponseEntity
+            .status(HttpStatus.NOT_FOUND)
+            .body(Map.of("message", ex.getMessage()));
   }
 
   @ExceptionHandler(value = DisabledException.class)

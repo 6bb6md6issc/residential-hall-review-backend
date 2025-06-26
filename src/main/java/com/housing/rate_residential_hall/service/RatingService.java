@@ -1,9 +1,6 @@
 package com.housing.rate_residential_hall.service;
 
-import com.housing.rate_residential_hall.S3.S3Service;
-import com.housing.rate_residential_hall.dto.CreateRatingDto;
-import com.housing.rate_residential_hall.dto.RatingDto;
-import com.housing.rate_residential_hall.dto.UpdateRatingDto;
+import com.housing.rate_residential_hall.dto.*;
 import com.housing.rate_residential_hall.dto.mapper.RatingMapper;
 import com.housing.rate_residential_hall.entity.Building;
 import com.housing.rate_residential_hall.entity.Image;
@@ -64,13 +61,14 @@ public class RatingService {
     }
   }
   
-  public List<RatingDto> getRating(UUID buildingId){
+  public GetRatingResponse getRating(UUID buildingId){
     Building building = buildingRepository.findById(buildingId)
             .orElseThrow(()-> new BuildingNotFoundException("No such building"));
     List<Rating> ratings = ratingRepository.findByBuilding(building);
-    return ratings.stream()
-            .map(ratingMapper::toDto)
+    List<RatingDto> ratingDtos = ratings.stream()
+            .map(rating -> ratingMapper.toDto(rating))
             .collect(Collectors.toList());
+    return new GetRatingResponse(building.getBuildingName(), building.getId(), ratingDtos);
   }
 
   public void deleteRating(UUID ratingId){
@@ -100,12 +98,23 @@ public class RatingService {
     ratingRepository.save(rating);
   }
 
-  public List<RatingDto> getAllRatingByUser(){
+  public List<MyRatingDto> getAllRatingByUser(){
     User user = authService.getAuthenticatedUser();
     List<Rating> ratings = ratingRepository.findByUser(user);
     return ratings
             .stream()
-            .map(ratingMapper::toDto)
+            .map(ratingMapper::toMyRatingDto)
             .collect(Collectors.toList());
+  }
+
+  public MySpecificRatingResponse getBuildingSpecificRating(UUID buildingId) {
+    UUID userId = authService.getAuthenticatedUser().getId();
+    Building building = buildingRepository.findById(buildingId)
+            .orElseThrow(() -> new BuildingNotFoundException("No Such Building"));
+    Rating rating = ratingRepository.findByBuildingIdAndUserId(buildingId, userId)
+            .orElse(null);
+    RatingDto dto = (rating != null) ? ratingMapper.toDto(rating) : null;
+    MySpecificRatingResponse response = new MySpecificRatingResponse(dto, building);
+    return response;
   }
 }

@@ -6,6 +6,7 @@ import com.housing.rate_residential_hall.entity.User;
 import org.springframework.data.repository.CrudRepository;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 public interface RatingRepository extends CrudRepository<Rating, UUID> {
@@ -14,4 +15,5 @@ public interface RatingRepository extends CrudRepository<Rating, UUID> {
   List<Rating> findByBuilding(Building building);
   void deleteById(UUID id);
   List<Rating> findByUser(User user);
+  Optional<Rating> findByBuildingIdAndUserId(UUID buildingId, UUID userId);
 }
