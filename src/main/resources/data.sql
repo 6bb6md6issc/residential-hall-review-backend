@@ -1,4 +1,4 @@
-INSERT INTO buildings (id, building_name) VALUES
+INSERT INTO _buildings (id, building_name) VALUES
 ('0aab21d3-21de-4592-9137-940c27c6d701', 'Darwin Apartments'),
 ('1d1a8916-edbb-44bf-8fe7-82547c317437', 'Lundstrom East Wing'),
 ('31128164-998d-4c78-af41-ba1b9ab40007', 'Blue Square Apartments'),
