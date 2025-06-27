@@ -28,7 +28,7 @@ public class Rating {
   @Column(name = "updated_at")
   private LocalDateTime updatedAt;
 
-  @Column(nullable = false)
+  @Column(length = 1000, nullable = false)
   private String content;
 
   @ManyToOne
