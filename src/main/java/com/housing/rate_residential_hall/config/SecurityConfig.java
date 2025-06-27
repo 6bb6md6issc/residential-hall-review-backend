@@ -1,5 +1,6 @@
 package com.housing.rate_residential_hall.config;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -21,6 +22,7 @@ public class SecurityConfig {
 
   private JwtAuthenticationFilter jwtAuthenticationFilter;
   private final AuthenticationProvider authenticationProvider;
+  @Value("${spring.frontend.host}") private String frontendUrl;
 
   public SecurityConfig(
           JwtAuthenticationFilter jwtAuthenticationFilter,
@@ -57,7 +59,7 @@ public class SecurityConfig {
   @Bean
   public CorsConfigurationSource corsConfigurationSource() {
     CorsConfiguration configuration = new CorsConfiguration();
-    configuration.setAllowedOrigins(List.of("https://app-backend.com", "http://localhost:5173")); //TODO: update backend url
+    configuration.setAllowedOrigins(List.of(frontendUrl, "http://localhost:5173")); //TODO: update backend url
     configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE"));
     configuration.setAllowedHeaders(List.of("Authorization", "Content-Type"));
 
