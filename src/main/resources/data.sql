@@ -16,4 +16,5 @@ INSERT INTO _buildings (id, building_name) VALUES
 ('cd8d45bd-e064-4ee0-9b02-684fdb098528', 'Mountain View Tower'),
 ('d7be39c9-4a8f-41af-814f-4594aa593efe', 'Bullen Hall'),
 ('e7363aed-3a8a-4226-a7fd-c3d0edcf52fb', 'Jones Hall'),
-('f13fcacf-3a8b-4f6a-b4ba-fc3f453349b9', 'Living Learning Community');
+('f13fcacf-3a8b-4f6a-b4ba-fc3f453349b9', 'Living Learning Community')
+ON CONFLICT (id) DO NOTHING;
