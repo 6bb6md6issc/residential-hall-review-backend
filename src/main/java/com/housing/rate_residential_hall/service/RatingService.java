@@ -15,6 +15,8 @@ import com.housing.rate_residential_hall.repository.RatingRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -61,13 +63,21 @@ public class RatingService {
     }
   }
   
-  public GetRatingResponse getRating(UUID buildingId){
+//  public GetRatingResponse getRating(UUID buildingId){
+//    Building building = buildingRepository.findById(buildingId)
+//            .orElseThrow(()-> new BuildingNotFoundException("No such building"));
+//    List<Rating> ratings = ratingRepository.findByBuilding(building);
+//    List<RatingDto> ratingDtos = ratings.stream()
+//            .map(rating -> ratingMapper.toDto(rating))
+//            .collect(Collectors.toList());
+//    return new GetRatingResponse(building.getBuildingName(), building.getId(), ratingDtos);
+//  }
+
+  public GetRatingResponse getRating(UUID buildingId, Pageable pageable){
     Building building = buildingRepository.findById(buildingId)
             .orElseThrow(()-> new BuildingNotFoundException("No such building"));
-    List<Rating> ratings = ratingRepository.findByBuilding(building);
-    List<RatingDto> ratingDtos = ratings.stream()
-            .map(rating -> ratingMapper.toDto(rating))
-            .collect(Collectors.toList());
+    Page<Rating> ratings = ratingRepository.findByBuilding(building, pageable);
+    Page<RatingDto> ratingDtos = ratings.map(ratingMapper::toDto);
     return new GetRatingResponse(building.getBuildingName(), building.getId(), ratingDtos);
   }
 

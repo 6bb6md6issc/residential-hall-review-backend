@@ -4,6 +4,9 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.housing.rate_residential_hall.dto.*;
 import com.housing.rate_residential_hall.service.RatingService;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -47,8 +50,16 @@ public class RatingController {
   }
 
   @GetMapping(path = "/{buildingId}")
-  public ResponseEntity getAllRating(@PathVariable UUID buildingId){
-    GetRatingResponse getRatingResponse = ratingService.getRating(buildingId);
+  public ResponseEntity getAllRating(
+          @PathVariable UUID buildingId,
+          @RequestParam(defaultValue = "0") int page,
+          @RequestParam(defaultValue = "6") int size,
+          @RequestParam(defaultValue = "startYear") String sortBy,
+          @RequestParam(defaultValue = "false") boolean ascending
+  ){
+    Sort sort = ascending ? Sort.by(sortBy).ascending() : Sort.by(sortBy).descending();
+    Pageable pageable = PageRequest.of(page, size, sort);
+    GetRatingResponse getRatingResponse = ratingService.getRating(buildingId, pageable);
     return ResponseEntity.ok().body(getRatingResponse);
   }
 

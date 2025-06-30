@@ -1,6 +1,8 @@
 package com.housing.rate_residential_hall.repository;
 
 import com.housing.rate_residential_hall.entity.Building;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
@@ -17,4 +19,7 @@ public interface BuildingRepository extends JpaRepository<Building, UUID> {
   )
   List<Building> searchBuildingByText(@Param("searchText") String searchText);
   List<Building> findAll();
+
+  @Override
+  Page<Building> findAll(Pageable pageable);
 }
