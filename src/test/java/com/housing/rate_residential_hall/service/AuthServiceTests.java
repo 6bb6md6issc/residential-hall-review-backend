@@ -3,27 +3,34 @@ package com.housing.rate_residential_hall.service;
 import com.housing.rate_residential_hall.dto.*;
 import com.housing.rate_residential_hall.entity.User;
 import com.housing.rate_residential_hall.exception.CodeExpiredException;
+import com.housing.rate_residential_hall.exception.UnauthorizedException;
 import com.housing.rate_residential_hall.exception.UserAlreadyExistsException;
 import com.housing.rate_residential_hall.exception.UserNotFoundException;
 import com.housing.rate_residential_hall.repository.UserRepository;
 import jakarta.mail.MessagingException;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
-import org.mockito.Captor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.time.LocalDateTime;
 import java.util.Optional;
+import java.util.UUID;
 
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -44,8 +51,19 @@ public class AuthServiceTests {
   @Mock
   private JwtService jwtService;
 
+  @Mock
+  private SecurityContext securityContext;
+
+  @Mock
+  private Authentication authentication;
+
   @InjectMocks
   private AuthService authService;
+
+  @AfterEach
+  public void clearContext() {
+    SecurityContextHolder.clearContext();
+  }
 
   @Test
   public void AuthService_SignUp_shouldThrowError(){
@@ -242,4 +260,78 @@ public class AuthServiceTests {
     Assertions.assertEquals("jwt", loginResponse.getToken());
     Assertions.assertEquals(user.getEmail(), loginResponse.getEmail());
   }
+
+  @Test
+  public void testVerifyAuthenticatedUser_Success() {
+    // Arrange
+    UUID userId = UUID.randomUUID();
+
+    User mockUser = mock(User.class);
+    when(mockUser.getId()).thenReturn(userId);
+
+    Authentication mockAuth = mock(Authentication.class);
+    when(mockAuth.getPrincipal()).thenReturn(mockUser);
+
+    SecurityContext mockContext = mock(SecurityContext.class);
+    when(mockContext.getAuthentication()).thenReturn(mockAuth);
+
+    SecurityContextHolder.setContext(mockContext);
+
+    // Act & Assert
+    assertDoesNotThrow(() -> authService.verifyAuthenticatedUser(userId));
+  }
+
+  @Test
+  public void testVerifyAuthenticatedUser_Unauthorized() {
+    // Arrange
+    UUID authenticatedUserId = UUID.randomUUID();
+    UUID targetUserId = UUID.randomUUID();
+
+    User mockUser = mock(User.class);
+    when(mockUser.getId()).thenReturn(authenticatedUserId);
+
+    Authentication mockAuth = mock(Authentication.class);
+    when(mockAuth.getPrincipal()).thenReturn(mockUser);
+
+    SecurityContext mockContext = mock(SecurityContext.class);
+    when(mockContext.getAuthentication()).thenReturn(mockAuth);
+
+    SecurityContextHolder.setContext(mockContext);
+
+    // Act & Assert
+    UnauthorizedException exception = Assertions.assertThrows(UnauthorizedException.class,
+            () -> authService.verifyAuthenticatedUser(targetUserId));
+
+    Assertions.assertEquals("Unauthorized.", exception.getMessage());
+  }
+
+  @Test
+  public void testResendVerificationEmail_UserNotFoundException() {
+    // Arrange
+    User user = new User("example@gmail.com", "123456");
+    when(userRepository.findByEmail(user.getEmail())).thenReturn(Optional.empty());
+    //Act and Assert
+    Assertions.assertThrows(UserNotFoundException.class, () -> authService.resendVerificationEmail(user.getEmail()));
+    verify(userRepository, never()).save(any());
+  }
+
+  @Test
+  public void testResendVerificationEmail_Success() throws MessagingException {
+    // Arrange
+    User user = new User("example@email", "123456");
+    when(userRepository.findByEmail(user.getEmail())).thenReturn(Optional.of(user));
+    doNothing().when(emailService)
+            .sendEmail(any(String.class), any(String.class), any(String.class));
+
+    //Act
+    authService.resendVerificationEmail(user.getEmail());
+
+    // Assert
+    ArgumentCaptor<User> captorUser = ArgumentCaptor.forClass(User.class);
+    verify(userRepository).save(captorUser.capture());
+    User savedUser = captorUser.getValue();
+    Assertions.assertEquals("example@email", savedUser.getEmail());
+    Assertions.assertNotNull(savedUser.getRegisterVerificationCode());
+  }
+
 }

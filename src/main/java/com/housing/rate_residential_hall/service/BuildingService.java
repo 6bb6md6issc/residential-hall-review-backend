@@ -20,10 +20,10 @@ public class BuildingService {
     return matchedBuildings;
   }
 
-  public List<Building> getAllBuildings() {
-    List<Building> allBuildings = buildingRepository.findAll();
-    return allBuildings;
-  }
+//  public List<Building> getAllBuildings() {
+//    List<Building> allBuildings = buildingRepository.findAll();
+//    return allBuildings;
+//  }
 
   public Page<Building> getAllBuildingsPagination(Pageable pageable) {
     return buildingRepository.findAll(pageable);
